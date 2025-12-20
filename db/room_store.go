@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -34,5 +35,11 @@ func (s *MongoRoomStore) InsertRoom(ctx context.Context, room *types.Room) (*typ
 		return nil, err
 	}
 	room.ID = res.InsertedID.(primitive.ObjectID)
+
+	//update the hotel with this room id
+	filter := bson.M{"_id": room.HotelID}
+	update := bson.M{"$push": bson.M{"rooms": room.ID}}
+	_ = filter
+	_ = update
 	return room, nil
 }

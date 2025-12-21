@@ -38,7 +38,7 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 		return err
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(authParams.Password)); err != nil {
-		return fmt.Errorf("invalid credentials")
+		return fmt.Errorf("Password doesn't match")
 	}
 	fmt.Println("authenticated ->", user)
 	return nil

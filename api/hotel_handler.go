@@ -1,21 +1,22 @@
 package api
 
 import (
+	"errors"
+
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/db"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type HotelHandler struct {
-	roomStore  db.RoomStore
-	hotelStore db.HotelStore
+	store *db.Store
 }
 
-func NewHotelHandler(hotelStore db.HotelStore, roomStore db.RoomStore) *HotelHandler {
+func NewHotelHandler(store *db.Store) *HotelHandler {
 	return &HotelHandler{
-		hotelStore: hotelStore,
-		roomStore:  roomStore,
+		store: store,
 	}
 }
 
@@ -26,7 +27,7 @@ func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
 		return err
 	}
 	filter := bson.M{"hotelID": oid}
-	rooms, err := h.roomStore.GetRooms(c.Context(), filter)
+	rooms, err := h.store.RoomStore.GetRooms(c.Context(), filter)
 	if err != nil {
 		return err
 	}
@@ -34,9 +35,23 @@ func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
 }
 
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-	hotels, err := h.hotelStore.GetHotels(c.Context(), nil)
+	hotels, err := h.store.HotelStore.GetHotels(c.Context(), nil)
 	if err != nil {
 		return err
 	}
 	return c.JSON(hotels)
+}
+
+func (h *HotelHandler) HandleGetHotel(c *fiber.Ctx) error {
+	var (
+		id = c.Params("id")
+	)
+	hotel, err := h.store.HotelStore.GetHotelByID(c.Context(), id)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.JSON(map[string]string{"error": "hotel not found"})
+		}
+		return err
+	}
+	return c.JSON(hotel)
 }

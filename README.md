@@ -1,6 +1,7 @@
 # Hotel Reservation Backend
 
-### Project outline
+## Project outline
+
 - Users -> Book room from an hotel
 - Admins -> Going to check reservation/bookings
 - Authorization -> JWT Tokens

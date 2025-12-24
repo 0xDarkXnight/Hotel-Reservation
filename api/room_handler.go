@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/db"
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/types"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -20,12 +22,22 @@ func NewRoomHandler(store *db.Store) *RoomHandler {
 	}
 }
 
+func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
+	rooms, err := h.store.RoomStore.GetRooms(c.Context(), bson.M{})
+	if err != nil {
+		return err
+	}
+	return c.JSON(rooms)
+}
+
 func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
-	var params *types.BookRoomParams
+	var params types.BookRoomParams
 	if err := c.BodyParser(&params); err != nil {
 		return err
 	}
-
+	if err := params.Validate(); err != nil {
+		return err
+	}
 	id := c.Params("id")
 	roomID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -38,6 +50,17 @@ func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
 			Msg:  "internal server error",
 		})
 	}
+
+	ok, err = h.isRoomAvailableForBooking(c.Context(), roomID, params)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return c.Status(http.StatusBadRequest).JSON(genericResp{
+			Type: "error",
+			Msg:  fmt.Sprintf("room %s already booked", id),
+		})
+	}
 	booking := types.Booking{
 		UserID:     user.ID,
 		RoomID:     roomID,
@@ -45,6 +68,28 @@ func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
 		FromDate:   params.FromDate,
 		TillDate:   params.TillDate,
 	}
-	fmt.Printf("%+v\n", booking)
-	return nil
+	inserted, err := h.store.BookingStore.InsertBooking(c.Context(), &booking)
+	if err != nil {
+		return nil
+	}
+	return c.JSON(inserted)
+}
+
+func (h *RoomHandler) isRoomAvailableForBooking(ctx context.Context, roomID primitive.ObjectID, params types.BookRoomParams) (bool, error) {
+	where := bson.M{
+		"roomID": roomID,
+		"fromDate": bson.M{
+			"$gte": params.FromDate,
+		},
+		"tillDate": bson.M{
+			"$lte": params.TillDate,
+		},
+	}
+	bookings, err := h.store.BookingStore.GetBookings(ctx, where)
+	if err != nil {
+		return false, err
+	}
+	fmt.Println(bookings)
+	ok := len(bookings) == 0
+	return ok, nil
 }

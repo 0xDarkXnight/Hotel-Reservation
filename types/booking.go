@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,4 +20,12 @@ type BookRoomParams struct {
 	NumPersons int       `json:"numPersons"`
 	FromDate   time.Time `json:"fromDate"`
 	TillDate   time.Time `json:"tillDate"`
+}
+
+func (p BookRoomParams) Validate() error {
+	now := time.Now()
+	if now.After(p.FromDate) || now.After(p.TillDate) {
+		return fmt.Errorf("cannot book a room in the past")
+	}
+	return nil
 }

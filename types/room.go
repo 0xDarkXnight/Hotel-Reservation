@@ -2,13 +2,6 @@ package types
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-const (
-	SingleRoomType RoomType = iota + 1
-	DoubleRoomType
-	SeaSideRoomType
-	DeluxeRoomType
-)
-
 type RoomType int
 
 type Room struct {

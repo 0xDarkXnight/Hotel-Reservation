@@ -24,3 +24,13 @@ func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
 	}
 	return c.JSON(bookings)
 }
+
+// TODO: this needs to be user authorized!
+func (h *BookingHandler) HandleGetBooking(c *fiber.Ctx) error {
+	id := c.Params("id")
+	booking, err := h.store.BookingStore.GetBookingByID(c.Context(), id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(booking)
+}

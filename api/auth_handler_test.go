@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/db"
+	"github.com/0xDarkXnight/Hotel-Reservation-Site/db/fixtures"
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/types"
 	"github.com/gofiber/fiber/v2"
 )
@@ -35,14 +36,14 @@ func insertTestUser(t *testing.T, userStore db.UserStore) *types.User {
 func TestAuthenticateSuccess(t *testing.T) {
 	tdb := setup()
 	defer tdb.teardown(t)
-	insertedUser := insertTestUser(t, tdb.UserStore)
+	insertedUser := fixtures.AddUser(tdb.Store, "james", "foo", false)
 	app := fiber.New()
-	authHandler := NewAuthHandler(tdb.UserStore)
+	authHandler := NewAuthHandler(tdb.Store.UserStore)
 	app.Post("/auth", authHandler.HandleAuthenticate)
 
 	authParams := AuthParams{
 		Email:    "james@foo.com",
-		Password: "supersecurepassword",
+		Password: "james_foo",
 	}
 	b, _ := json.Marshal(authParams)
 	req := httptest.NewRequest("POST", "/auth", bytes.NewReader(b))
@@ -73,9 +74,9 @@ func TestAuthenticateSuccess(t *testing.T) {
 func TestAuthenticateWithWrongPasswordFailure(t *testing.T) {
 	tdb := setup()
 	defer tdb.teardown(t)
-	insertTestUser(t, tdb.UserStore)
+	fixtures.AddUser(tdb.Store, "james", "foo", false)
 	app := fiber.New()
-	authHandler := NewAuthHandler(tdb.UserStore)
+	authHandler := NewAuthHandler(tdb.Store.UserStore)
 	app.Post("/auth", authHandler.HandleAuthenticate)
 
 	authParams := AuthParams{

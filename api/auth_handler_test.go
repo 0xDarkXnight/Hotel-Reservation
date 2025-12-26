@@ -2,7 +2,6 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,32 +9,14 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/0xDarkXnight/Hotel-Reservation-Site/db"
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/db/fixtures"
-	"github.com/0xDarkXnight/Hotel-Reservation-Site/types"
 	"github.com/gofiber/fiber/v2"
 )
-
-func insertTestUser(t *testing.T, userStore db.UserStore) *types.User {
-	user, err := types.NewUserFromParams(types.CreateUserParams{
-		FirstName: "James",
-		LastName:  "Foo",
-		Email:     "james@foo.com",
-		Password:  "supersecurepassword",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = userStore.InsertUser(context.TODO(), user)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return user
-}
 
 func TestAuthenticateSuccess(t *testing.T) {
 	tdb := setup()
 	defer tdb.teardown(t)
+
 	insertedUser := fixtures.AddUser(tdb.Store, "james", "foo", false)
 	app := fiber.New()
 	authHandler := NewAuthHandler(tdb.Store.UserStore)
@@ -59,7 +40,6 @@ func TestAuthenticateSuccess(t *testing.T) {
 	if err := json.NewDecoder(resp.Body).Decode(&authResp); err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(resp)
 	if authResp.Token == "" {
 		t.Fatalf("expected the JWT token to be present in the auth response")
 	}
@@ -67,6 +47,8 @@ func TestAuthenticateSuccess(t *testing.T) {
 	// that in any JSON response.
 	insertedUser.EncryptedPassword = ""
 	if !reflect.DeepEqual(insertedUser, authResp.User) {
+		fmt.Println(insertedUser)
+		fmt.Println(authResp.User)
 		t.Fatalf("expected user to be the inserted user")
 	}
 }
@@ -74,6 +56,7 @@ func TestAuthenticateSuccess(t *testing.T) {
 func TestAuthenticateWithWrongPasswordFailure(t *testing.T) {
 	tdb := setup()
 	defer tdb.teardown(t)
+
 	fixtures.AddUser(tdb.Store, "james", "foo", false)
 	app := fiber.New()
 	authHandler := NewAuthHandler(tdb.Store.UserStore)

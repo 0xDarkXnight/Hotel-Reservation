@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	testdburi  = "mongodb://localhost:27017"
-	testdbname = "hotel-reservation-test"
+	testdburi = "mongodb://localhost:27017"
 )
 
 type testdb struct {
@@ -21,7 +20,7 @@ type testdb struct {
 }
 
 func (tdb *testdb) teardown(t *testing.T) {
-	if err := tdb.client.Database(testdbname).Drop(t.Context()); err != nil {
+	if err := tdb.client.Database(db.DBNAME).Drop(t.Context()); err != nil {
 		t.Fatal(err)
 	}
 }

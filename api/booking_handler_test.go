@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/0xDarkXnight/Hotel-Reservation-Site/api/middleware"
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/db/fixtures"
 	"github.com/0xDarkXnight/Hotel-Reservation-Site/types"
 	"github.com/gofiber/fiber/v2"
@@ -25,7 +24,7 @@ func TestUserGetBooking(t *testing.T) {
 		room           = fixtures.AddRoom(tdb.Store, "small", true, 99.99, hotel.ID)
 		booking        = fixtures.AddBooking(tdb.Store, user.ID, room.ID, 2, time.Now(), time.Now().AddDate(0, 0, 2))
 		app            = fiber.New()
-		route          = app.Group("/", middleware.JWTAuthentication(tdb.Store.UserStore))
+		route          = app.Group("/", JWTAuthentication(tdb.Store.UserStore))
 		bookingHandler = NewBookingHandler(tdb.Store)
 	)
 	route.Get("/:id", bookingHandler.HandleGetBooking)
@@ -71,7 +70,7 @@ func TestAdminGetBookings(t *testing.T) {
 		room           = fixtures.AddRoom(tdb.Store, "small", true, 99.99, hotel.ID)
 		booking        = fixtures.AddBooking(tdb.Store, user.ID, room.ID, 2, time.Now(), time.Now().AddDate(0, 0, 2))
 		app            = fiber.New()
-		admin          = app.Group("/", middleware.JWTAuthentication(tdb.Store.UserStore), middleware.AdminAuth)
+		admin          = app.Group("/", JWTAuthentication(tdb.Store.UserStore), AdminAuth)
 		bookingHandler = NewBookingHandler(tdb.Store)
 	)
 

@@ -77,10 +77,10 @@ func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 	)
 	oid, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	if err := c.BodyParser(&params); err != nil {
-		return err
+		return ErrBadRequest()
 	}
 	filter := bson.M{"_id": oid}
 	if err := h.userStore.UpdateUser(c.Context(), filter, params); err != nil {

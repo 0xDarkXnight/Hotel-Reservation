@@ -2,92 +2,42 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
 
+	"github.com/0xDarkXnight/Hotel-Reservation/api"
 	"github.com/0xDarkXnight/Hotel-Reservation/db"
-	"github.com/0xDarkXnight/Hotel-Reservation/types"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/0xDarkXnight/Hotel-Reservation/db/fixtures"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-	client     *mongo.Client
-	userStore  db.UserStore
-	hotelStore db.HotelStore
-	roomStore  db.RoomStore
-	ctx        = context.Background()
-	err        error
-)
-
-func init() {
-	client, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
+func main() {
+	ctx := context.Background()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(db.DBURI))
 	if err != nil {
 		log.Fatal(err)
 	}
 	if err := client.Database(db.DBNAME).Drop(ctx); err != nil {
 		log.Fatal(err)
 	}
-	userStore = db.NewMongoUserStore(client)
-	hotelStore = db.NewMongoHotelStore(client)
-	roomStore = db.NewMongoRoomStore(client, hotelStore)
-}
-
-func seedUser(fname, lname, email, password string, isAdmin bool) {
-	user, err := types.NewUserFromParams(types.CreateUserParams{
-		FirstName: fname,
-		LastName:  lname,
-		Email:     email,
-		Password:  password,
-	})
-	if err != nil {
-		log.Fatal(err)
+	userStore := db.NewMongoUserStore(client)
+	hotelStore := db.NewMongoHotelStore(client)
+	roomStore := db.NewMongoRoomStore(client, hotelStore)
+	bookingStore := db.NewMongoBookingStore(client)
+	store := &db.Store{
+		UserStore:    userStore,
+		HotelStore:   hotelStore,
+		RoomStore:    roomStore,
+		BookingStore: bookingStore,
 	}
-	user.IsAdmin = isAdmin
-	_, err = userStore.InsertUser(ctx, user)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func seedHotel(hotelName, hotelLocation string, hotelrating int) {
-	hotel := types.Hotel{
-		Name:     hotelName,
-		Location: hotelLocation,
-		Rooms:    []primitive.ObjectID{},
-		Rating:   hotelrating,
-	}
-	rooms := []types.Room{
-		{
-			Size:  "small",
-			Price: 99.9,
-		},
-		{
-			Size:  "medium",
-			Price: 149.9,
-		},
-		{
-			Size:  "kingsize",
-			Price: 199.9,
-		},
-	}
-	insertedHotel, err := hotelStore.InsertHotel(ctx, &hotel)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, room := range rooms {
-		room.HotelID = insertedHotel.ID
-		_, err := roomStore.InsertRoom(ctx, &room)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-}
-
-func main() {
-	seedHotel("Bellucia", "France", 3)
-	seedHotel("The Cozy Hotel", "Nederlands", 4)
-	seedHotel("Taj Hotel", "India", 5)
-	seedUser("James", "Hugh", "james@foo.com", "supersecurepassword", false)
-	seedUser("admin", "admin", "admin@admin.com", "adminpassword123", true)
+	user := fixtures.AddUser(store, "james", "foo", false)
+	fmt.Println("James -> ", api.CreateTokenFromUser(user))
+	admin := fixtures.AddUser(store, "admin", "admin", true)
+	fmt.Println("Admin -> ", api.CreateTokenFromUser(admin))
+	hotel := fixtures.AddHotel(store, "Elysee", "Bermuda", nil, 5)
+	room := fixtures.AddRoom(store, "small", true, 99.99, hotel.ID)
+	booking := fixtures.AddBooking(store, user.ID, room.ID, 3, time.Now(), time.Now().AddDate(0, 0, 2))
+	fmt.Println("booking -> ", booking.ID)
 }

@@ -72,5 +72,7 @@ func main() {
 
 	// booking handlers
 	apiv1.Get("/booking", bookingHandler.HandleGetBookings)
+	apiv1.Get("/booking/:id", bookingHandler.HandleGetBooking)
+
 	app.Listen(*listenAddr)
 }

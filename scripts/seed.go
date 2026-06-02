@@ -31,11 +31,12 @@ func init() {
 	roomStore = db.NewMongoRoomStore(client, hotelStore)
 }
 
-func seedHotel(hotelName, hotelLocation string) {
+func seedHotel(hotelName, hotelLocation string, hotelrating int) {
 	hotel := types.Hotel{
 		Name:     hotelName,
 		Location: hotelLocation,
 		Rooms:    []primitive.ObjectID{},
+		Rating:   hotelrating,
 	}
 	rooms := []types.Room{
 		{
@@ -65,7 +66,7 @@ func seedHotel(hotelName, hotelLocation string) {
 }
 
 func main() {
-	seedHotel("Bellucia", "France")
-	seedHotel("The Cozy Hotel", "Nederlands")
-	seedHotel("Taj Hotel", "India")
+	seedHotel("Bellucia", "France", 3)
+	seedHotel("The Cozy Hotel", "Nederlands", 4)
+	seedHotel("Taj Hotel", "India", 5)
 }

@@ -25,7 +25,7 @@ func NewRoomHandler(store *db.Store) *RoomHandler {
 func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
 	rooms, err := h.store.RoomStore.GetRooms(c.Context(), bson.M{})
 	if err != nil {
-		return err
+		return ErrResourceNotFound("rooms")
 	}
 	return c.JSON(rooms)
 }
@@ -41,7 +41,7 @@ func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
 	id := c.Params("id")
 	roomID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return ErrInvalidID()
 	}
 	user, ok := c.Context().Value("user").(*types.User)
 	if !ok {
@@ -70,7 +70,7 @@ func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
 	}
 	inserted, err := h.store.BookingStore.InsertBooking(c.Context(), &booking)
 	if err != nil {
-		return nil
+		return err
 	}
 	return c.JSON(inserted)
 }
@@ -87,7 +87,7 @@ func (h *RoomHandler) isRoomAvailableForBooking(ctx context.Context, roomID prim
 	}
 	bookings, err := h.store.BookingStore.GetBookings(ctx, where)
 	if err != nil {
-		return false, err
+		return false, ErrResourceNotFound("bookings")
 	}
 	fmt.Println(bookings)
 	ok := len(bookings) == 0

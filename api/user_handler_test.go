@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -34,7 +33,6 @@ func TestPostUser(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(resp.Status)
 	var user types.User
 	json.NewDecoder(resp.Body).Decode(&user)
 	if len(user.ID) == 0 {

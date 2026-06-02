@@ -20,7 +20,7 @@ func NewHotelHandler(store *db.Store) *HotelHandler {
 	}
 }
 
-func (h *HotelHandler) HandleGetRooms(c *fiber.Ctx) error {
+func (h *HotelHandler) HandleGetHotelRooms(c *fiber.Ctx) error {
 	id := c.Params("id")
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {

@@ -55,7 +55,7 @@ func (params CreateUserParams) Validate() map[string]string {
 	if len(params.LastName) < minLastNameLen {
 		errors["lastName"] = fmt.Sprintf("LastName length should be at least %d characters", minLastNameLen)
 	}
-	if !isEmailValid(params.Email) {
+	if !isValidEmail(params.Email) {
 		errors["email"] = fmt.Sprintln("email is invalid")
 	}
 	if len(params.Password) < minPasswordLen {
@@ -64,9 +64,13 @@ func (params CreateUserParams) Validate() map[string]string {
 	return errors
 }
 
-func isEmailValid(e string) bool {
+func isValidEmail(e string) bool {
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 	return emailRegex.MatchString(e)
+}
+
+func IsValidPassword(encpw, pw string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(encpw), []byte(pw)) == nil
 }
 
 func NewUserFromParams(params CreateUserParams) (*User, error) {

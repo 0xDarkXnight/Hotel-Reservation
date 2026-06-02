@@ -15,6 +15,14 @@ const (
 	minPasswordLen  = 7
 )
 
+type User struct {
+	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	FirstName         string             `bson:"firstName" json:"firstName"`
+	LastName          string             `bson:"lastName" json:"lastName"`
+	Email             string             `bson:"email" json:"email"`
+	EncryptedPassword string             `bson:"encryptedPassword" json:"-"`
+}
+
 type CreateUserParams struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
@@ -22,19 +30,19 @@ type CreateUserParams struct {
 	Password  string `json:"password"`
 }
 
-func (params CreateUserParams) Validate() []string {
-	errors := []string{}
+func (params CreateUserParams) Validate() map[string]string {
+	errors := map[string]string{}
 	if len(params.FirstName) < minFirstNameLen {
-		errors = append(errors, fmt.Sprintf("FirstName length should be at least %d characters", minFirstNameLen))
+		errors["firstName"] = fmt.Sprintf("FirstName length should be at least %d characters", minFirstNameLen)
 	}
 	if len(params.LastName) < minLastNameLen {
-		errors = append(errors, fmt.Sprintf("LastName length should be at least %d characters", minLastNameLen))
+		errors["lastName"] = fmt.Sprintf("LastName length should be at least %d characters", minLastNameLen)
 	}
 	if !isEmailValid(params.Email) {
-		errors = append(errors, fmt.Sprintln("email is invalid"))
+		errors["email"] = fmt.Sprintln("email is invalid")
 	}
 	if len(params.Password) < minPasswordLen {
-		errors = append(errors, fmt.Sprintf("password length should be at least %d characters", minPasswordLen))
+		errors["password"] = fmt.Sprintf("password length should be at least %d characters", minPasswordLen)
 	}
 	return errors
 }
@@ -42,14 +50,6 @@ func (params CreateUserParams) Validate() []string {
 func isEmailValid(e string) bool {
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 	return emailRegex.MatchString(e)
-}
-
-type User struct {
-	ID                primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	FirstName         string             `bson:"firstName" json:"firstName"`
-	LastName          string             `bson:"lastName" json:"lastName"`
-	Email             string             `bson:"email" json:"email"`
-	EncryptedPassword string             `bson:"encryptedPassword" json:"-"`
 }
 
 func NewUserFromParams(params CreateUserParams) (*User, error) {

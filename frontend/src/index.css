@@ -1,0 +1,248 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Deep Navy-Black Backgrounds ── */
+  --color-dark-950: #050810;
+  --color-dark-900: #0a0d17;
+  --color-dark-800: #0f1322;
+  --color-dark-700: #141a2e;
+  --color-dark-600: #1a2139;
+  --color-dark-500: #212a45;
+  --color-dark-400: #2a3555;
+  --color-dark-300: #364163;
+  --color-dark-200: #4a5578;
+  --color-dark-100: #6b7599;
+
+  /* ── Luxury Gold ── */
+  --color-gold-50: #fdf9f0;
+  --color-gold-100: #f7edce;
+  --color-gold-200: #efd99d;
+  --color-gold-300: #e6c06c;
+  --color-gold-400: #dbb978;
+  --color-gold-500: #c8a55e;
+  --color-gold-600: #a68540;
+  --color-gold-700: #846328;
+
+  /* ── Semantic ── */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #22d3ee;
+
+  /* ── Neutral Text ── */
+  --color-slate-50: #f0f2f7;
+  --color-slate-100: #e2e5ed;
+  --color-slate-200: #c8cdd9;
+  --color-slate-300: #a3abbe;
+  --color-slate-400: #8b92a8;
+  --color-slate-500: #6e7694;
+  --color-slate-600: #545c75;
+  --color-slate-700: #3e4560;
+  --color-slate-800: #2a3048;
+  --color-slate-900: #1a1f33;
+
+  /* ── Font ── */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* ── Animations ── */
+  --animate-fade-in: fade-in 0.6s ease-out;
+  --animate-slide-up: slide-up 0.5s ease-out;
+  --animate-slide-down: slide-down 0.35s ease-out;
+  --animate-scale-in: scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(200, 165, 94, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(200, 165, 94, 0.2); }
+}
+
+/* ── Base ── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  color: #c8cdd9;
+  background-color: #0a0d17;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0d17; }
+::-webkit-scrollbar-thumb { background: #2a3555; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #364163; }
+
+/* ── Focus & Selection ── */
+*:focus-visible { outline: 2px solid #c8a55e; outline-offset: 2px; }
+::selection { background: rgba(200, 165, 94, 0.25); color: #f0f2f7; }
+
+
+/* ─────────────────────────────────────────────────
+   LAYOUT SYSTEM
+   ───────────────────────────────────────────────── */
+
+.page-container {
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;   /* 24px mobile */
+  padding-right: 1.5rem;
+}
+@media (min-width: 640px) {
+  .page-container {
+    padding-left: 2rem;    /* 32px tablet */
+    padding-right: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .page-container {
+    padding-left: 3rem;    /* 48px desktop */
+    padding-right: 3rem;
+  }
+}
+
+/* Narrow container for form/detail pages */
+.page-container-narrow {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+@media (min-width: 640px) {
+  .page-container-narrow { padding-left: 2rem; padding-right: 2rem; }
+}
+
+/* Section spacing — generous vertical rhythm between sections */
+.section-spacing {
+  padding-top: clamp(7rem, 10vw, 12rem);
+  padding-bottom: clamp(7rem, 10vw, 12rem);
+}
+
+/* Section header — heading + description group */
+.section-header {
+  margin-bottom: clamp(3.5rem, 5vw, 5rem);
+}
+
+
+/* ── Utility Classes ── */
+.glass {
+  background: rgba(10, 13, 23, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.glass-card {
+  background: rgba(20, 26, 46, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #e6c06c, #c8a55e, #dbb978);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gold-glow {
+  box-shadow: 0 0 30px rgba(200, 165, 94, 0.2), 0 0 80px rgba(200, 165, 94, 0.08);
+}
+
+.card-border {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.card-border-hover:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.card-glow:hover {
+  box-shadow: 0 8px 40px rgba(200, 165, 94, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+
+/* ─────────────────────────────────────────────────
+   TYPOGRAPHY SCALE
+   ───────────────────────────────────────────────── */
+
+.heading-hero {
+  font-size: clamp(3.5rem, 7vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #f0f2f7;
+}
+
+.heading-section {
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: #f0f2f7;
+}
+
+.heading-subsection {
+  font-size: clamp(1.5rem, 2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f0f2f7;
+}
+
+.text-body {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: #8b92a8;
+}
+
+.text-body-lg {
+  font-size: 1.25rem;
+  line-height: 1.7;
+  color: #8b92a8;
+}
+
+.text-body-sm {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #8b92a8;
+}
+
+.text-supporting {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #6e7694;
+}
+
+.text-caption {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #545c75;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
